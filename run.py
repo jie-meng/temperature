@@ -27,7 +27,7 @@ def raw_diff(color1: List[float], color2: List[float]) -> float:
     return abs(color1[0] - color2[0]) + abs(color1[1] - color2[1]) + abs(color1[2] - color2[2]) + abs(color1[3] - color2[3])
 
 
-def load_ruler(root_path: str) -> List[float]:
+def load_ruler(root_path: str) -> List[List[float]]:
     ruler_image = Image.open(root_path + '/ruler.png')
     pix = ruler_image.load()
 
@@ -40,7 +40,7 @@ def load_ruler(root_path: str) -> List[float]:
     return ruler
 
 
-def parse_config(config: str) -> Dict:
+def parse_config(config: str) -> Dict[str, str]:
     with open(config, 'r') as f:
         lines = list(filter(lambda y: re.match('\w+=\d+\.?\d*', y), map(lambda x: x.strip(), f.readlines())))
 
