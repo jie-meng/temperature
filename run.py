@@ -2,12 +2,12 @@
 
 import os
 import re
+import numpy as np
 from dataclasses import dataclass
 from typing import List, Dict
 from pathlib import Path
 from PIL import Image
 from openpyxl import Workbook
-import numpy as np
 
 
 @dataclass
