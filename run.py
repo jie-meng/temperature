@@ -42,7 +42,7 @@ def load_ruler(root_path: str) -> List[List[float]]:
 
 def parse_config(config: str) -> Dict[str, str]:
     with open(config, 'r') as f:
-        lines = list(filter(lambda y: re.match('\w+=\d+\.?\d*', y), map(lambda x: x.strip(), f.readlines())))
+        lines = list(filter(lambda y: re.match('\w+=-?\d+\.?\d*', y), map(lambda x: x.strip(), f.readlines())))
 
         config_data = {}
         for line in lines:
