@@ -1,0 +1,2 @@
+ruler_min=20.2
+ruler_max=24.1
