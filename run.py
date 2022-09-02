@@ -73,6 +73,9 @@ def calc_image_data(ruler: List[float], image: str, config: str) -> Data:
                 idx = ruler.index(min(ruler, key = lambda x: raw_diff(x, pix[i, j])))
                 value = (idx / len(ruler)) * (ruler_max - ruler_min) + ruler_min
                 all_value_array.append(value)
+    
+    if len(all_value_array) == target_im.size[0] * target_im.size[1]:
+        print('Warning: this image does not cliped correctly!')
 
     target_im.close()
 
