@@ -69,7 +69,7 @@ def calc_image_data(debug: bool, ruler: List[List[float]], image: str, config: s
     for i in range(0, target_im.size[0]):
         for j in range(0, target_im.size[1]):
             # Only calculate non-transparent pixels
-            if pix[i, j][0] != 0 or pix[i, j][1] != 0 or pix[i, j][2] != 0 or pix[i, j][3] != 0:
+            if pix[i, j][3] != 0:
                 if debug:
                     print('Include>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
 
@@ -171,7 +171,7 @@ def process_collection(debug: bool, ruler: List[List[float]], root_path: str, co
 
 
 @click.command()
-@click.option('--debug', prompt = 'Debug mode?(y/n)', default = 'n', required = True, type=click.Choice(['y', 'n']), help = 'Enable debug or not')
+@click.option('--debug', prompt = 'Debug mode?', default = 'n', required = True, type=click.Choice(['y', 'n']), help = 'Enable debug or not')
 def cli(debug: str):
     """temperature-cli - Command line tool to analyze temperature image data"""
     # Find current script absolute path
