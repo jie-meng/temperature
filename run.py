@@ -2,8 +2,8 @@
 
 import os
 import re
-from webbrowser import BaseBrowser
 import numpy as np
+import click
 from dataclasses import dataclass
 from typing import List, Dict
 from pathlib import Path
@@ -54,7 +54,7 @@ def parse_config(config: str) -> Dict[str, str]:
         return config_data
 
 
-def calc_image_data(ruler: List[float], image: str, config: str) -> Data:
+def calc_image_data(debug: bool, ruler: List[List[float]], image: str, config: str) -> Data:
     config_data = parse_config(config)
     ruler_min = float(config_data['ruler_min'])
     ruler_max = float(config_data['ruler_max'])
@@ -63,16 +63,24 @@ def calc_image_data(ruler: List[float], image: str, config: str) -> Data:
     target_im = Image.open(image)
     pix = target_im.load()
 
-    print('Calculating {0} ...'.format(image))
+    print('Calculating {0} (size {1}x{2}) ...'.format(image, target_im.size[0], target_im.size[1]))
 
     all_value_array = []
     for i in range(0, target_im.size[0]):
         for j in range(0, target_im.size[1]):
             # Only calculate non-transparent pixels
             if pix[i, j][0] != 0 or pix[i, j][1] != 0 or pix[i, j][2] != 0 or pix[i, j][3] != 0:
+                if debug:
+                    print('Include>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
+
                 idx = ruler.index(min(ruler, key = lambda x: raw_diff(x, pix[i, j])))
                 value = (idx / len(ruler)) * (ruler_max - ruler_min) + ruler_min
                 all_value_array.append(value)
+            else:
+                if debug:
+                    print('Exclude>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
+
+
     
     if len(all_value_array) == target_im.size[0] * target_im.size[1]:
         print('Warning: this image does not cliped correctly!')
@@ -130,7 +138,7 @@ def write_output(data_array: List[Data], xlsx_file: str):
     wb.save(filename = xlsx_file)
 
 
-def process_collection(root_path: str, coll: str):
+def process_collection(debug: bool, ruler: List[List[float]], root_path: str, coll: str):
     coll_path = '{0}/images/{1}'.format(root_path, coll)
     print('\nProcessing collection {0} ...'.format(coll_path))
 
@@ -149,7 +157,7 @@ def process_collection(root_path: str, coll: str):
             continue
 
         try:
-            data_array.append(calc_image_data(ruler, image_path, config_path))
+            data_array.append(calc_image_data(debug, ruler, image_path, config_path))
         except BaseException:
             data_array.append(Data(image_name = Path(image).stem, is_ok = False, data_array = []))
             continue
@@ -162,7 +170,10 @@ def process_collection(root_path: str, coll: str):
         write_output(data_array, xlsx_file)
 
 
-if __name__ == '__main__':
+@click.command()
+@click.option('--debug', prompt = 'Debug mode?(y/n)', default = 'n', required = True, type=click.Choice(['y', 'n']), help = 'Enable debug or not')
+def cli(debug: str):
+    """temperature-cli - Command line tool to analyze temperature image data"""
     # Find current script absolute path
     root_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -174,7 +185,10 @@ if __name__ == '__main__':
     collections.sort()
 
     for coll in collections:
-        process_collection(root_path, coll)
+        process_collection(debug == 'y', ruler, root_path, coll)
 
     print('\nDone!')
 
+if __name__ == '__main__':
+    cli() 
+    
