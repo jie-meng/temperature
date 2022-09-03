@@ -1,6 +1,7 @@
 .DS_Store
 .pyc
 .python-version
+.xlsx
 venv/
 images/*.png
 /output/
