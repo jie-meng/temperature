@@ -15,4 +15,4 @@ ruler_max=24.1
 
 ## Execute
 
-python run.py
+python cli.py
