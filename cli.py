@@ -3,7 +3,7 @@
 import os
 import click
 from src.utils.coll import find_collections
-from src.logic.calc import load_ruler, process_collection
+from src.logic.calc import Caculator
 
 
 @click.command()
@@ -13,10 +13,11 @@ def cli(debug: str):
     # Find current script absolute path
     root_path = os.path.dirname(os.path.realpath(__file__))
 
-    ruler = load_ruler(root_path)
+    calculator = Caculator()
+    ruler = calculator.load_ruler(root_path)
 
     for coll in find_collections(f'{root_path}/images'):
-        process_collection(debug == 'y', ruler, f'{root_path}/images/{coll}')
+        calculator.process_collection(debug == 'y', ruler, f'{root_path}/images/{coll}')
 
     print('\nDone!')
 

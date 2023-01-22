@@ -3,7 +3,7 @@
 import os
 import PySimpleGUI as sg
 from typing import Final, List
-from src.logic.calc import load_ruler, process_collection
+from src.logic.calc import Caculator
 from src.utils.coll import find_collections
 
 
@@ -13,14 +13,17 @@ ACTION_BATCH_PROCESS: Final = '批量处理'
 KEY_BROWSE_FOLDER: Final = '-BROWSE-'
 
 
+calculator = Caculator()
+
+
 def single_process(ruler: List[List[float]], dir: str):
-    process_collection(False, ruler, dir)
+    calculator.process_collection(False, ruler, dir)
     print('Done')
 
 
 def batch_process(ruler: List[List[float]], dir: str):
     for coll in find_collections(dir):
-        process_collection(False, ruler, f'{dir}/{coll}')
+        calculator.process_collection(False, ruler, f'{dir}/{coll}')
     print('Done')
 
 
@@ -28,7 +31,7 @@ if __name__ == '__main__':
     # Find current script absolute path
     root_path = os.path.dirname(os.path.realpath(__file__))
 
-    ruler = load_ruler(root_path)
+    ruler = calculator.load_ruler(root_path)
 
     sg.theme('LightGreen')
 
@@ -37,7 +40,7 @@ if __name__ == '__main__':
     process_folder = f'{root_path}/images'
 
     layout = [
-            [sg.Push(), sg.Text('XXXX 系统', size=(40, 3), font=font, justification='center'), sg.Push()],
+            [sg.Push(), sg.Text('温度数据分析系统', size=(40, 3), font=font, justification='center'), sg.Push()],
             [sg.Text('单组处理用于。。。。', size=(40, 1), justification='left')],
             [sg.Text('批量处理用于。。。。', size=(40, 1), justification='left')],
             [sg.VPush()],
