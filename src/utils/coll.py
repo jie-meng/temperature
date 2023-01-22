@@ -4,8 +4,10 @@ import os
 from typing import List
 
 
-def find_collections(root_path: str) -> List[str]:
-    collections = list(filter(lambda x: os.path.isdir('{0}/images/{1}'.format(root_path, x)), os.listdir('{0}/images'.format(root_path))))
+def find_collections(path: str) -> List[str]:
+    dir = os.path.dirname(path)
+    base = os.path.basename(path)
+    collections = list(filter(lambda x: os.path.isdir(f'{dir}/{base}/{x}'), os.listdir(path)))
     collections.sort()
 
     return collections

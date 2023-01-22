@@ -89,9 +89,9 @@ def calc_image_data(debug: bool, ruler: List[List[float]], image: str, config: s
     return data
 
 
-def process_collection(debug: bool, ruler: List[List[float]], root_path: str, coll: str):
-    coll_path = '{0}/images/{1}'.format(root_path, coll)
-    print('\nProcessing collection {0} ...'.format(coll_path))
+def process_collection(debug: bool, ruler: List[List[float]], coll_path: str):
+    coll = os.path.basename(coll_path)
+    print(f'\nProcessing collection {coll_path} ...')
 
     # Find images
     images = list(filter(lambda x: x.endswith('.png'), os.listdir(coll_path)))
@@ -104,7 +104,7 @@ def process_collection(debug: bool, ruler: List[List[float]], root_path: str, co
         config_path = '{0}/{1}.txt'.format(coll_path, os.path.splitext(image)[0])
 
         if not os.path.isfile(config_path):
-            print('Warning: cannot find {0}'.format(config_path))
+            print(f'Warning: cannot find {config_path}')
             continue
 
         try:
@@ -114,8 +114,8 @@ def process_collection(debug: bool, ruler: List[List[float]], root_path: str, co
             continue
 
     # Write xlsx
-    xlsx_file = '{0}/{1}.xlsx'.format(coll_path, coll)
-    print('Generate {0} ...'.format(xlsx_file))
+    xlsx_file = f'{coll_path}/{coll}.xlsx'
+    print(f'Generate {xlsx_file} ...')
 
     if len(data_array) > 0:
         write_output(data_array, xlsx_file)

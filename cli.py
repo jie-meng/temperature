@@ -15,8 +15,8 @@ def cli(debug: str):
 
     ruler = load_ruler(root_path)
 
-    for coll in find_collections(root_path):
-        process_collection(debug == 'y', ruler, root_path, coll)
+    for coll in find_collections(f'{root_path}/images'):
+        process_collection(debug == 'y', ruler, f'{root_path}/images/{coll}')
 
     print('\nDone!')
 

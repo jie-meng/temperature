@@ -15,4 +15,10 @@ ruler_max=24.1
 
 ## Execute
 
+### Command line interface
+
 python cli.py
+
+### Graphic user interface
+
+python gui.py
