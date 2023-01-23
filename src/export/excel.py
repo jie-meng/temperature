@@ -3,8 +3,12 @@
 from openpyxl import Workbook
 from typing import List
 from src.models.data import Data
+from src.utils.logger import Logger, DefaultLogger
 
 class ExcelExporter:
+    def __init__(self, logger: Logger) -> None:
+        self.__logger = logger or DefaultLogger()
+
     def write_output(self, data_array: List[Data], xlsx_file: str):
         wb = Workbook()
         ws1 = wb.active

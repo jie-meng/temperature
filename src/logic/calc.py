@@ -8,11 +8,13 @@ from PIL import Image
 from typing import List, Dict
 from src.models.data import Data
 from src.export.excel import ExcelExporter
+from src.utils.logger import Logger, DefaultLogger
 
 
 class Caculator:
-    def __init__(self):
-        self.__exporter = ExcelExporter()
+    def __init__(self, logger: Logger):
+        self.__logger = logger or DefaultLogger()
+        self.__exporter = ExcelExporter(self.__logger)
 
     def raw_diff(self, color1: List[float], color2: List[float]) -> float:
         return abs(color1[0] - color2[0]) + abs(color1[1] - color2[1]) + abs(color1[2] - color2[2]) + abs(color1[3] - color2[3])
@@ -52,7 +54,7 @@ class Caculator:
         target_im = Image.open(image)
         pix = target_im.load()
 
-        print('Calculating {0} (size {1}x{2}) ...'.format(image, target_im.size[0], target_im.size[1]))
+        self.__logger.info('Calculating {0} (size {1}x{2}) ...'.format(image, target_im.size[0], target_im.size[1]))
 
         all_value_array = []
         for i in range(0, target_im.size[0]):
@@ -60,19 +62,19 @@ class Caculator:
                 # Only calculate non-transparent pixels
                 if pix[i, j][3] != 0:
                     if debug:
-                        print('Include>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
+                        self.__logger.debug('Include>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
 
                     idx = ruler.index(min(ruler, key = lambda x: self.raw_diff(x, pix[i, j])))
                     value = (idx / len(ruler)) * (ruler_max - ruler_min) + ruler_min
                     all_value_array.append(value)
                 else:
                     if debug:
-                        print('Exclude>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
+                        self.__logger.debug('Exclude>>> [{0},{1}] R:{2}, G:{3}, B:{4}, A:{5}'.format(i, j, pix[i, j][0], pix[i, j][1], pix[i, j][2], pix[i, j][3]))
 
 
         
         if len(all_value_array) == target_im.size[0] * target_im.size[1]:
-            print('Warning: this image does not cliped correctly!')
+            self.__logger.warn('Warning: this image does not cliped correctly!')
 
         target_im.close()
 
@@ -95,11 +97,15 @@ class Caculator:
 
     def process_collection(self, debug: bool, ruler: List[List[float]], coll_path: str):
         coll = os.path.basename(coll_path)
-        print(f'\nProcessing collection {coll_path} ...')
+        self.__logger.info(f'\nProcessing collection {coll_path} ...')
 
         # Find images
         images = list(filter(lambda x: x.endswith('.png'), os.listdir(coll_path)))
         images.sort()
+
+        if len(images) == 0:
+            self.__logger.warn('No image need to be processed! Abort ...')
+            return
 
         # Process each image
         data_array: List[Data] = []
@@ -108,7 +114,7 @@ class Caculator:
             config_path = '{0}/{1}.txt'.format(coll_path, os.path.splitext(image)[0])
 
             if not os.path.isfile(config_path):
-                print(f'Warning: cannot find {config_path}')
+                self.__logger.warn(f'Warning: cannot find {config_path}')
                 continue
 
             try:
@@ -119,7 +125,7 @@ class Caculator:
 
         # Write xlsx
         xlsx_file = f'{coll_path}/{coll}.xlsx'
-        print(f'Generate {xlsx_file} ...')
+        self.__logger.info(f'Generate {xlsx_file} ...')
 
         if len(data_array) > 0:
             self.__exporter.write_output(data_array, xlsx_file)
